@@ -78,11 +78,12 @@ const Navbar = ({ isAdminLoggedIn, cart, setCart, removeFromCart, showCart }) =>
                     key={item._id + item.size}
                     className="flex justify-between items-center border-b pb-3 hover:bg-purple-50 rounded transition-colors duration-200"
                   >
-                 <img
-  src={`${BASE_URL}${item.image}`}
+<img
+  src={item.image}
   alt={item.name}
   className="w-16 h-16 object-cover rounded-lg"
 />
+
 
                     <div className="flex-1 ml-3">
                       <p className="font-semibold">{item.name}</p>
