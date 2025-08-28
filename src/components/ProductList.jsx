@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
 import { motion } from "framer-motion";
-import { BASE_URL } from "../config";
+import { BASE_URL } from "../config"; // only for fetching products
 
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.15 },
-  },
+  visible: { opacity: 1, transition: { staggerChildren: 0.15 } },
 };
 
 const itemVariants = {
@@ -27,20 +24,10 @@ const ProductList = ({ onViewDetails, quantities = {}, onQuantityChange }) => {
   }, []);
 
   return (
-    <motion.div
-      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
+    <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6" variants={containerVariants} initial="hidden" animate="visible">
       {products.map((product) => (
         <motion.div key={product._id} variants={itemVariants}>
-          <ProductCard
-            product={product} // ✅ product.image already full Cloudinary URL
-            onViewDetails={onViewDetails}
-            quantities={quantities}
-            onQuantityChange={onQuantityChange}
-          />
+          <ProductCard product={product} onViewDetails={onViewDetails} quantities={quantities} onQuantityChange={onQuantityChange} />
         </motion.div>
       ))}
     </motion.div>

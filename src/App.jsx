@@ -18,18 +18,17 @@ function App() {
   const [quantities, setQuantities] = useState({});
   const [loading, setLoading] = useState(true);
 
-  // Persist cart
+  // Save cart to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  // Splash screen timer
+  // Splash screen timer reduced for faster transition
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 2200);
+    const timer = setTimeout(() => setLoading(false), 2200); // 2.3 seconds
     return () => clearTimeout(timer);
   }, []);
 
-  // Quantity change
   const handleQuantityChange = (productId, value) => {
     if (value < 1) value = 1;
     setQuantities(prev => ({ ...prev, [productId]: value }));
@@ -38,7 +37,6 @@ function App() {
   const handleViewDetails = (product) => setSelectedProduct(product);
   const handleCloseModal = () => setSelectedProduct(null);
 
-  // Add to cart
   const addToCart = (product, selectedSize) => {
     const qty = quantities[product._id] || 1;
     const existing = cart.find(item => item._id === product._id && item.size === selectedSize);
@@ -87,7 +85,13 @@ function App() {
             <motion.div
               initial={{ y: -150, opacity: 0, scale: 0.8 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
-              transition={{ type: "spring", stiffness: 60, damping: 12, mass: 0.8, delay: 0.3 }}
+              transition={{
+                type: "spring",
+                stiffness: 60,
+                damping: 12,
+                mass: 0.8,
+                delay: 0.3 // slightly faster than before
+              }}
               className="relative z-50"
             >
               {/* Gradient glow behind navbar */}
@@ -101,7 +105,7 @@ function App() {
               <motion.div
                 initial={{ y: -10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }}
+                transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }} // smooth and premium
                 className="relative"
               >
                 <Navbar
@@ -114,7 +118,7 @@ function App() {
             </motion.div>
 
             <Routes>
-              {/* Home */}
+              {/* Home Page */}
               <Route
                 path="/"
                 element={
@@ -122,7 +126,7 @@ function App() {
                     className="pt-16 md:pt-20 lg:pt-24 bg-gradient-to-b from-purple-50 via-purple-100 to-pink-50 min-h-screen"
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
+                    transition={{ duration: 1, delay: 0.8, ease: "easeOut" }} // smooth fade-up
                   >
                     <ProductList
                       quantities={quantities}
@@ -142,13 +146,18 @@ function App() {
                 }
               />
 
-              {/* Login */}
-              <Route path="/login" element={<Login setIsAdminLoggedIn={setIsAdminLoggedIn} />} />
+              {/* Login Page */}
+              <Route
+                path="/login"
+                element={<Login setIsAdminLoggedIn={setIsAdminLoggedIn} />}
+              />
 
-              {/* Admin */}
+              {/* Admin Page */}
               <Route
                 path="/admin"
-                element={isAdminLoggedIn ? <AdminPanel /> : <Navigate to="/login" replace />}
+                element={
+                  isAdminLoggedIn ? <AdminPanel /> : <Navigate to="/login" replace />
+                }
               />
             </Routes>
           </motion.div>

@@ -1,2 +1,2 @@
-export const BASE_URL = "https://dress-backend-1.onrender.com";
-
+// src/config.js
+export const BASE_URL = process.env.REACT_APP_BASE_URL || "https://your-backend-url.onrender.com";

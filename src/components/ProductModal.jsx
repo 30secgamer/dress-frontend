@@ -15,7 +15,7 @@ const ProductModal = ({ product, onClose, quantities = {}, onQuantityChange, add
 Product: ${product.name}
 Size: ${selectedSize || "Not Selected"}
 Quantity: ${quantity}
-Image: ${product.image}  // ✅ full Cloudinary URL
+Image: ${product.image}  // Use full Cloudinary URL directly
 `;
 
     if (product.discountedPrice) {
@@ -40,6 +40,7 @@ Total Price: ₹${product.discountedPrice * quantity}`;
         <button onClick={onClose} className="absolute top-2 right-2 text-gray-600 hover:text-red-500">✖</button>
 
         <img src={product.image} alt={product.name} className="w-full h-60 object-cover rounded-xl mb-4" />
+
         <h2 className="text-xl font-bold mb-2">{product.name}</h2>
 
         {product.discountedPrice ? (
