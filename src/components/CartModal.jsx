@@ -1,5 +1,4 @@
 import React from "react";
-import { BASE_URL } from "../config"; // adjust path if needed
 
 const CartModal = ({ cart, setCart, onClose }) => {
   const phone = "919633663256";
@@ -56,7 +55,8 @@ const CartModal = ({ cart, setCart, onClose }) => {
 
               return (
                 <li key={item._id + item.size} className="flex justify-between items-center border-b pb-3">
-                  <img src={`${BASE_URL}${item.image}`} alt={item.name} className="w-20 h-20 object-cover rounded-lg" />
+                  {/* ✅ use Cloudinary URL directly */}
+                  <img src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded-lg" />
 
                   <div className="flex-1 ml-3">
                     <p className="font-semibold">{item.name}</p>

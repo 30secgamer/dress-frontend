@@ -1,78 +1,71 @@
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { BASE_URL } from "../config"; // adjust path if needed
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+
+const BASE_URL = "http://localhost:5000"; // Keep this for API calls, not for images
 
 const AdminPanel = () => {
   const [products, setProducts] = useState([]);
   const [name, setName] = useState("");
   const [originalPrice, setOriginalPrice] = useState("");
   const [discountedPrice, setDiscountedPrice] = useState("");
-  const [sizes, setSizes] = useState("S,M,L");
+  const [sizes, setSizes] = useState("");
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [editingId, setEditingId] = useState(null);
-
-  // Fetch products
-  const fetchProducts = async () => {
-    try {
-      const res = await fetch(`${BASE_URL}/api/products`);
-      const data = await res.json();
-      setProducts(data);
-    } catch (err) {
-      console.error("Failed to fetch products:", err);
-    }
-  };
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  const handleFileChange = (e) => {
+  const fetchProducts = async () => {
+    try {
+      const { data } = await axios.get(`${BASE_URL}/api/products`);
+      setProducts(data);
+    } catch (err) {
+      console.error("Error fetching products", err);
+    }
+  };
+
+  const handleImageChange = (e) => {
     const file = e.target.files[0];
     setImage(file);
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result);
-      reader.readAsDataURL(file);
-    } else {
-      setImagePreview(null);
+      setImagePreview(URL.createObjectURL(file));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name || !originalPrice) return alert("Name and Original Price are required");
 
     const formData = new FormData();
     formData.append("name", name);
-    formData.append("originalPrice", Number(originalPrice));
-    if (discountedPrice) formData.append("discountedPrice", Number(discountedPrice));
+    formData.append("originalPrice", originalPrice);
+    if (discountedPrice) formData.append("discountedPrice", discountedPrice);
     formData.append("sizes", sizes);
     if (image) formData.append("image", image);
 
     try {
       if (editingId) {
-        await fetch(`${BASE_URL}/api/products/${editingId}`, { method: "PUT", body: formData });
-        alert("✅ Product updated!");
+        await axios.put(`${BASE_URL}/api/products/${editingId}`, formData);
+        setEditingId(null);
       } else {
-        await fetch(`${BASE_URL}/api/products`, { method: "POST", body: formData });
-        alert("✅ Product added!");
+        await axios.post(`${BASE_URL}/api/products`, formData);
       }
-
-      // Reset
-      setName(""); setOriginalPrice(""); setDiscountedPrice(""); setSizes("S,M,L");
-      setImage(null); setImagePreview(null); setEditingId(null);
+      resetForm();
       fetchProducts();
     } catch (err) {
-      console.error(err);
-      alert("❌ Failed to save product. Check console.");
+      console.error("Error saving product", err);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure?")) return;
-    await fetch(`${BASE_URL}/api/products/${id}`, { method: "DELETE" });
-    fetchProducts();
+  const resetForm = () => {
+    setName("");
+    setOriginalPrice("");
+    setDiscountedPrice("");
+    setSizes("");
+    setImage(null);
+    setImagePreview(null);
+    setEditingId(null);
   };
 
   const handleEdit = (product) => {
@@ -81,139 +74,131 @@ const AdminPanel = () => {
     setDiscountedPrice(product.discountedPrice || "");
     setSizes(product.sizes.join(","));
     setImage(null);
-    setImagePreview(`${BASE_URL}${product.image}`);
+    setImagePreview(product.image); // ✅ Direct Cloudinary URL
     setEditingId(product._id);
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`${BASE_URL}/api/products/${id}`);
+      fetchProducts();
+    } catch (err) {
+      console.error("Error deleting product", err);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-white to-pink-100 pt-32 px-6">
-      <motion.h1
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-5xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 drop-shadow mb-16"
-      >
-        ✨ Admin Panel ✨
-      </motion.h1>
+    <div className="p-8 max-w-6xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6 text-center">
+        Admin Panel - Product Management
+      </h1>
 
-      <motion.form
-        onSubmit={handleSubmit}
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="max-w-6xl mx-auto backdrop-blur-lg bg-white/70 shadow-2xl rounded-3xl p-8 mb-16 border border-purple-200"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+      {/* Product Form */}
+      <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-lg p-6 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <input
-            type="text" placeholder="Product Name" value={name}
+            type="text"
+            placeholder="Product Name"
+            value={name}
             onChange={(e) => setName(e.target.value)}
-            className="p-3 rounded-xl bg-white/80 border border-gray-300 focus:ring-4 focus:ring-purple-300 outline-none transition shadow-sm"
+            className="p-2 border rounded"
             required
           />
           <input
-            type="number" placeholder="Original Price" value={originalPrice}
+            type="number"
+            placeholder="Original Price"
+            value={originalPrice}
             onChange={(e) => setOriginalPrice(e.target.value)}
-            className="p-3 rounded-xl bg-white/80 border border-gray-300 focus:ring-4 focus:ring-purple-300 outline-none transition shadow-sm"
+            className="p-2 border rounded"
             required
           />
           <input
-            type="number" placeholder="Offer Price (optional)" value={discountedPrice}
+            type="number"
+            placeholder="Discounted Price (optional)"
+            value={discountedPrice}
             onChange={(e) => setDiscountedPrice(e.target.value)}
-            className="p-3 rounded-xl bg-white/80 border border-gray-300 focus:ring-4 focus:ring-purple-300 outline-none transition shadow-sm"
+            className="p-2 border rounded"
           />
           <input
-            type="text" placeholder="Sizes (comma separated)" value={sizes}
+            type="text"
+            placeholder="Sizes (comma separated)"
+            value={sizes}
             onChange={(e) => setSizes(e.target.value)}
-            className="p-3 rounded-xl bg-white/80 border border-gray-300 focus:ring-4 focus:ring-purple-300 outline-none transition shadow-sm"
+            className="p-2 border rounded"
+            required
+          />
+          <input
+            type="file"
+            onChange={handleImageChange}
+            className="p-2 border rounded"
+            accept="image/*"
           />
         </div>
 
-        <div className="mt-8 flex flex-col items-center">
-          <label className="cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-xl shadow-lg hover:scale-105 transition font-semibold">
-            {image ? "Change Image" : "Upload Image"}
-            <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-          </label>
-          {imagePreview && (
-            <img src={imagePreview} alt="Preview"
-                 className="h-24 w-24 object-cover mt-3 rounded-xl shadow-md border border-purple-200"
+        {imagePreview && (
+          <div className="mt-4">
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="w-32 h-32 object-cover rounded"
             />
-          )}
-
-          <div className="mt-6 flex flex-wrap justify-center gap-4">
-            <button
-              type="submit"
-              className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition font-bold"
-            >
-              {editingId ? "Update Product" : "Add Product"}
-            </button>
-            {editingId && (
-              <button
-                type="button"
-                onClick={() => {
-                  setName(""); setOriginalPrice(""); setDiscountedPrice(""); setSizes("S,M,L");
-                  setImage(null); setImagePreview(null); setEditingId(null);
-                }}
-                className="bg-gray-500 text-white px-8 py-3 rounded-xl hover:bg-gray-600 transition font-bold"
-              >
-                Cancel
-              </button>
-            )}
           </div>
-        </div>
-      </motion.form>
+        )}
 
-      <motion.h2
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="text-3xl font-bold text-purple-700 mb-8 text-center"
-      >
-        📦 Existing Products
-      </motion.h2>
+        <button
+          type="submit"
+          className="mt-6 w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition"
+        >
+          {editingId ? "Update Product" : "Add Product"}
+        </button>
+      </form>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-        {products.map((p, i) => (
-          <motion.div
-            key={p._id}
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1, type: "spring", stiffness: 80 }}
-            className="backdrop-blur-md bg-white/90 border border-purple-200 rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl hover:scale-[1.02] transition"
-          >
-            <img src={`${BASE_URL}${p.image}`} alt={p.name} className="w-full h-48 object-cover" />
-            <div className="p-5">
-              <h3 className="font-bold text-xl text-gray-800">{p.name}</h3>
-              <p className="text-gray-500 text-sm">
-                {p.discountedPrice ? (
-                  <>
-                    <span className="line-through mr-2">₹{p.originalPrice}</span>
-                    <span className="text-purple-600 font-semibold">₹{p.discountedPrice}</span>
-                    <span className="text-green-500 ml-2">
-                      ({Math.round((1 - p.discountedPrice / p.originalPrice) * 100)}% OFF)
-                    </span>
-                  </>
-                ) : (
-                  <>₹{p.originalPrice}</>
-                )}
+      {/* Product List */}
+      <h2 className="text-xl font-semibold mb-4">Product List</h2>
+      {products.length === 0 ? (
+        <p className="text-gray-500">No products found.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {products.map((p) => (
+            <div
+              key={p._id}
+              className="border rounded-lg shadow-md p-4 bg-white"
+            >
+              <img
+                src={p.image} // ✅ Direct Cloudinary URL
+                alt={p.name}
+                className="w-full h-48 object-cover"
+              />
+              <h3 className="text-lg font-semibold mt-2">{p.name}</h3>
+              <p className="text-gray-600">Sizes: {p.sizes.join(", ")}</p>
+              <p className="text-red-500 font-bold">
+                ₹{p.discountedPrice || p.originalPrice}
               </p>
-              <p className="text-gray-500 text-sm">Sizes: {p.sizes.join(", ")}</p>
-              <div className="flex gap-3 mt-5 flex-wrap">
+              {p.discountedPrice && (
+                <p className="text-gray-400 line-through">
+                  ₹{p.originalPrice}
+                </p>
+              )}
+              <div className="flex gap-2 mt-3">
                 <button
                   onClick={() => handleEdit(p)}
-                  className="bg-yellow-400 text-white px-5 py-2 rounded-xl shadow hover:bg-yellow-500 hover:scale-105 transition font-semibold"
+                  className="flex-1 bg-yellow-400 p-2 rounded hover:bg-yellow-500 transition"
                 >
-                  ✏️ Edit
+                  Edit
                 </button>
                 <button
                   onClick={() => handleDelete(p._id)}
-                  className="bg-red-500 text-white px-5 py-2 rounded-xl shadow hover:bg-red-600 hover:scale-105 transition font-semibold"
+                  className="flex-1 bg-red-500 text-white p-2 rounded hover:bg-red-600 transition"
                 >
-                  🗑 Delete
+                  Delete
                 </button>
               </div>
             </div>
-          </motion.div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { BASE_URL } from "../config"; // adjust path if needed
 
 const ProductModal = ({ product, onClose, quantities = {}, onQuantityChange, addToCart }) => {
   const [selectedSize, setSelectedSize] = useState("");
@@ -16,7 +15,7 @@ const ProductModal = ({ product, onClose, quantities = {}, onQuantityChange, add
 Product: ${product.name}
 Size: ${selectedSize || "Not Selected"}
 Quantity: ${quantity}
-Image: ${BASE_URL}${product.image}
+Image: ${product.image}  // ✅ full Cloudinary URL
 `;
 
     if (product.discountedPrice) {
@@ -40,7 +39,7 @@ Total Price: ₹${product.discountedPrice * quantity}`;
       >
         <button onClick={onClose} className="absolute top-2 right-2 text-gray-600 hover:text-red-500">✖</button>
 
-        <img src={`${BASE_URL}${product.image}`} alt={product.name} className="w-full h-60 object-cover rounded-xl mb-4" />
+        <img src={product.image} alt={product.name} className="w-full h-60 object-cover rounded-xl mb-4" />
         <h2 className="text-xl font-bold mb-2">{product.name}</h2>
 
         {product.discountedPrice ? (

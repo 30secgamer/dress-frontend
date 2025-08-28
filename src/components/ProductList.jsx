@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
 import { motion } from "framer-motion";
-import { BASE_URL } from "../config"; // make sure this path is correct
+import { BASE_URL } from "../config";
 
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.15, // Delay between cards
-    },
+    transition: { staggerChildren: 0.15 },
   },
 };
 
@@ -38,7 +36,7 @@ const ProductList = ({ onViewDetails, quantities = {}, onQuantityChange }) => {
       {products.map((product) => (
         <motion.div key={product._id} variants={itemVariants}>
           <ProductCard
-            product={product}
+            product={product} // ✅ product.image already full Cloudinary URL
             onViewDetails={onViewDetails}
             quantities={quantities}
             onQuantityChange={onQuantityChange}
