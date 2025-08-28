@@ -5,8 +5,7 @@ import axios from "axios";
 // Use environment variable
 const BASE_URL = process.env.REACT_APP_BASE_URL;
 
-const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dqfyq55jk/image/upload";
-const UPLOAD_PRESET = "dressshop_upload";
+
 
 const AdminPanel = () => {
   const [products, setProducts] = useState([]);
@@ -44,59 +43,64 @@ const AdminPanel = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!name || !originalPrice) return alert("Name and Original Price are required");
+  const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dqfyq55jk/image/upload";
+const UPLOAD_PRESET = "dressshop_upload";
 
-    let imageUrl = imagePreview;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!name || !originalPrice || !image) return alert("Name, Original Price, and Image are required");
 
-    if (image) {
-      const formData = new FormData();
-      formData.append("file", image);
-      formData.append("upload_preset", UPLOAD_PRESET);
+  let imageUrl = imagePreview;
 
-      try {
-        const res = await axios.post(CLOUDINARY_URL, formData);
-        imageUrl = res.data.secure_url;
-      } catch (err) {
-        console.error("Cloudinary upload failed", err);
-        return alert("❌ Image upload failed");
-      }
-    }
-
-    const productData = {
-      name,
-      originalPrice: Number(originalPrice),
-      discountedPrice: discountedPrice ? Number(discountedPrice) : undefined,
-      sizes,
-      image: imageUrl,
-    };
+  if (image) {
+    const formData = new FormData();
+    formData.append("file", image);
+    formData.append("upload_preset", UPLOAD_PRESET);
 
     try {
-      if (editingId) {
-        await fetch(`${BASE_URL}/api/products/${editingId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(productData),
-        });
-        alert("✅ Product updated!");
-      } else {
-        await fetch(`${BASE_URL}/api/products`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(productData),
-        });
-        alert("✅ Product added!");
-      }
-
-      setName(""); setOriginalPrice(""); setDiscountedPrice(""); setSizes("S,M,L");
-      setImage(null); setImagePreview(null); setEditingId(null);
-      fetchProducts();
+      const res = await axios.post(CLOUDINARY_URL, formData);
+      imageUrl = res.data.secure_url;
     } catch (err) {
-      console.error(err);
-      alert("❌ Failed to save product");
+      console.error("Cloudinary upload failed", err);
+      return alert("❌ Image upload failed");
     }
+  }
+
+  const productData = {
+    name,
+    originalPrice: Number(originalPrice),
+    discountedPrice: discountedPrice ? Number(discountedPrice) : undefined,
+    sizes,
+    image: imageUrl,
   };
+
+  try {
+    if (editingId) {
+      await fetch(`${BASE_URL}/api/products/${editingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(productData),
+      });
+      alert("✅ Product updated!");
+    } else {
+      await fetch(`${BASE_URL}/api/products`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(productData),
+      });
+      alert("✅ Product added!");
+    }
+
+    // Reset form
+    setName(""); setOriginalPrice(""); setDiscountedPrice(""); setSizes("S,M,L");
+    setImage(null); setImagePreview(null); setEditingId(null);
+    fetchProducts();
+  } catch (err) {
+    console.error(err);
+    alert("❌ Failed to save product");
+  }
+};
+
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure?")) return;
