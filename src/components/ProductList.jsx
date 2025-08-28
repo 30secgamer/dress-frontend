@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
 import { motion } from "framer-motion";
+import { BASE_URL } from "../config"; // make sure this path is correct
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -21,7 +22,7 @@ const ProductList = ({ onViewDetails, quantities = {}, onQuantityChange }) => {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/products")
+    fetch(`${BASE_URL}/api/products`)
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch((err) => console.error(err));

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaShoppingCart } from "react-icons/fa";
+import { BASE_URL } from "../config"; // adjust path if needed
 
 const Navbar = ({ isAdminLoggedIn, cart, setCart, removeFromCart, showCart }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -77,11 +78,11 @@ const Navbar = ({ isAdminLoggedIn, cart, setCart, removeFromCart, showCart }) =>
                     key={item._id + item.size}
                     className="flex justify-between items-center border-b pb-3 hover:bg-purple-50 rounded transition-colors duration-200"
                   >
-                    <img
-                      src={`http://localhost:5000${item.image}`}
-                      alt={item.name}
-                      className="w-16 h-16 object-cover rounded-lg"
-                    />
+                 <img
+  src={`${BASE_URL}${item.image}`}
+  alt={item.name}
+  className="w-16 h-16 object-cover rounded-lg"
+/>
 
                     <div className="flex-1 ml-3">
                       <p className="font-semibold">{item.name}</p>

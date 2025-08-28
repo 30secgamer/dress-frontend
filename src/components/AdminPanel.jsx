@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { BASE_URL } from "../config"; // adjust path if needed
 
 const AdminPanel = () => {
   const [products, setProducts] = useState([]);
@@ -14,7 +15,7 @@ const AdminPanel = () => {
   // Fetch products
   const fetchProducts = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/products");
+      const res = await fetch(`${BASE_URL}/api/products`);
       const data = await res.json();
       setProducts(data);
     } catch (err) {
@@ -51,10 +52,10 @@ const AdminPanel = () => {
 
     try {
       if (editingId) {
-        await fetch(`http://localhost:5000/api/products/${editingId}`, { method: "PUT", body: formData });
+        await fetch(`${BASE_URL}/api/products/${editingId}`, { method: "PUT", body: formData });
         alert("✅ Product updated!");
       } else {
-        await fetch("http://localhost:5000/api/products", { method: "POST", body: formData });
+        await fetch(`${BASE_URL}/api/products`, { method: "POST", body: formData });
         alert("✅ Product added!");
       }
 
@@ -70,27 +71,24 @@ const AdminPanel = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure?")) return;
-    await fetch(`http://localhost:5000/api/products/${id}`, { method: "DELETE" });
+    await fetch(`${BASE_URL}/api/products/${id}`, { method: "DELETE" });
     fetchProducts();
   };
 
-const handleEdit = (product) => {
-  setName(product.name);
-  setOriginalPrice(product.originalPrice);
-  setDiscountedPrice(product.discountedPrice || "");
-  setSizes(product.sizes.join(","));
-  setImage(null);
-  setImagePreview(`http://localhost:5000${product.image}`);
-  setEditingId(product._id);
+  const handleEdit = (product) => {
+    setName(product.name);
+    setOriginalPrice(product.originalPrice);
+    setDiscountedPrice(product.discountedPrice || "");
+    setSizes(product.sizes.join(","));
+    setImage(null);
+    setImagePreview(`${BASE_URL}${product.image}`);
+    setEditingId(product._id);
 
-  // Scroll to top smoothly
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-};
-
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-white to-pink-100 pt-32 px-6">
-      {/* Header */}
       <motion.h1
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -99,7 +97,6 @@ const handleEdit = (product) => {
         ✨ Admin Panel ✨
       </motion.h1>
 
-      {/* Form */}
       <motion.form
         onSubmit={handleSubmit}
         initial={{ opacity: 0, scale: 0.9 }}
@@ -165,7 +162,6 @@ const handleEdit = (product) => {
         </div>
       </motion.form>
 
-      {/* Products */}
       <motion.h2
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -183,7 +179,7 @@ const handleEdit = (product) => {
             transition={{ delay: i * 0.1, type: "spring", stiffness: 80 }}
             className="backdrop-blur-md bg-white/90 border border-purple-200 rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl hover:scale-[1.02] transition"
           >
-            <img src={`http://localhost:5000${p.image}`} alt={p.name} className="w-full h-48 object-cover" />
+            <img src={`${BASE_URL}${p.image}`} alt={p.name} className="w-full h-48 object-cover" />
             <div className="p-5">
               <h3 className="font-bold text-xl text-gray-800">{p.name}</h3>
               <p className="text-gray-500 text-sm">

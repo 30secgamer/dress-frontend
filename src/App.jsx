@@ -23,9 +23,9 @@ function App() {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  // Splash screen timer reduced
+  // Splash screen timer reduced for faster transition
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 2400); // 2 seconds
+    const timer = setTimeout(() => setLoading(false), 2200); // 2.3 seconds
     return () => clearTimeout(timer);
   }, []);
 
@@ -69,7 +69,7 @@ function App() {
             initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }} // faster fade-out
+            transition={{ duration: 1 }}
           >
             <SplashScreen />
           </motion.div>
@@ -79,7 +79,7 @@ function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }} // faster fade-in
+            transition={{ duration: 1 }}
           >
             {/* Navbar with premium animation */}
             <motion.div
@@ -90,7 +90,7 @@ function App() {
                 stiffness: 60,
                 damping: 12,
                 mass: 0.8,
-                delay: 0.3 // slight delay for smooth feel
+                delay: 0.3 // slightly faster than before
               }}
               className="relative z-50"
             >
@@ -105,7 +105,7 @@ function App() {
               <motion.div
                 initial={{ y: -10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.7, ease: "easeOut" }}
+                transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }} // smooth and premium
                 className="relative"
               >
                 <Navbar
@@ -126,7 +126,7 @@ function App() {
                     className="pt-16 md:pt-20 lg:pt-24 bg-gradient-to-b from-purple-50 via-purple-100 to-pink-50 min-h-screen"
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1, delay: 0.8, ease: "easeOut" }} // slightly faster
+                    transition={{ duration: 1, delay: 0.8, ease: "easeOut" }} // smooth fade-up
                   >
                     <ProductList
                       quantities={quantities}

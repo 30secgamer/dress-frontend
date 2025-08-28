@@ -1,37 +1,35 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { BASE_URL } from "../config"; // adjust path if needed
 
 const ProductModal = ({ product, onClose, quantities = {}, onQuantityChange, addToCart }) => {
   const [selectedSize, setSelectedSize] = useState("");
   const quantity = quantities[product._id] || 1;
-  // const price = product.discountedPrice || product.originalPrice;
   const percentOff = product.discountedPrice
     ? Math.round((1 - product.discountedPrice / product.originalPrice) * 100)
     : 0;
 
-const handlePayNow = () => {
-  const phoneNumber = "919633663256";
-  let message = `🛒 Order Details
+  const handlePayNow = () => {
+    const phoneNumber = "919633663256";
+    let message = `🛒 Order Details
 -------------------
 Product: ${product.name}
 Size: ${selectedSize || "Not Selected"}
 Quantity: ${quantity}
-Image: http://localhost:5000${product.image}
+Image: ${BASE_URL}${product.image}
 `;
 
-  if (product.discountedPrice) {
-    const percentOff = Math.round((1 - product.discountedPrice / product.originalPrice) * 100);
-    message += `Original Price: ₹${product.originalPrice}
+    if (product.discountedPrice) {
+      message += `Original Price: ₹${product.originalPrice}
 Offer Price: ₹${product.discountedPrice} (${percentOff}% OFF)
 Total Price: ₹${product.discountedPrice * quantity}`;
-  } else {
-    message += `Price: ₹${product.originalPrice * quantity}`;
-  }
+    } else {
+      message += `Price: ₹${product.originalPrice * quantity}`;
+    }
 
-  const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-  window.open(url, "_blank");
-};
-
+    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 transition-opacity duration-500">
@@ -42,10 +40,9 @@ Total Price: ₹${product.discountedPrice * quantity}`;
       >
         <button onClick={onClose} className="absolute top-2 right-2 text-gray-600 hover:text-red-500">✖</button>
 
-        <img src={`http://localhost:5000${product.image}`} alt={product.name} className="w-full h-60 object-cover rounded-xl mb-4" />
+        <img src={`${BASE_URL}${product.image}`} alt={product.name} className="w-full h-60 object-cover rounded-xl mb-4" />
         <h2 className="text-xl font-bold mb-2">{product.name}</h2>
 
-        {/* Price Section */}
         {product.discountedPrice ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2 mb-4 text-lg">
             <p className="line-through text-gray-400">₹{product.originalPrice}</p>
